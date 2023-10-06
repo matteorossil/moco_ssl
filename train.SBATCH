@@ -6,7 +6,7 @@
 #SBATCH --time=0:10:00
 #SBATCH --mem=60GB
 #SBATCH --gres=gpu:2
-#SBATCH --job-name=1M_blur
+#SBATCH --job-name=MOCO_200K_blur
 #SBATCH --output=/scratch/mr6744/pytorch/outputs_slurm/%j.out
 
 export MASTER_PORT=$(shuf -i 10000-65500 -n 1)
