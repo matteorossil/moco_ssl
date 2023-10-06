@@ -176,6 +176,12 @@ parser.add_argument(
 )
 parser.add_argument("--cos", action="store_true", help="use cosine lr schedule")
 
+parser.add_argument(
+    "--ckpt_path",
+    default="",
+    type=str,
+    help="where to save checkpoint (default: none)",
+)
 
 def main():
     args = parser.parse_args()
@@ -319,7 +325,7 @@ def main_worker(gpu, ngpus_per_node, args):
     cudnn.benchmark = True
 
     # Data loading code
-    traindir = os.path.join(args.data, "train")
+    traindir = os.path.join(args.data, "") #train
     normalize = transforms.Normalize(
         mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
     )
@@ -385,9 +391,8 @@ def main_worker(gpu, ngpus_per_node, args):
                     "optimizer": optimizer.state_dict(),
                 },
                 is_best=False,
-                filename="checkpoint_{:04d}.pth.tar".format(epoch),
+                filename=os.path.join(args.ckpt_path, "checkpoint_{:04d}.pth.tar".format(epoch)),
             )
-
 
 def train(train_loader, model, criterion, optimizer, epoch, args):
     batch_time = AverageMeter("Time", ":6.3f")
