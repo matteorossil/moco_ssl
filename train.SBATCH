@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=2
 #SBATCH --cpus-per-task=12
 #SBATCH --time=0:10:00
 #SBATCH --mem=60GB
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:2
 #SBATCH --job-name=MOCO_200K_blur
 #SBATCH --output=/scratch/mr6744/pytorch/outputs_slurm/%j.out
 
@@ -30,5 +30,4 @@ srun \
 												--dist-url "env://" \
 												--mlp --moco-t 0.2 --aug-plus --cos \
 												--ckpt_path /vast/mr6744/pretrained_models_moco/200K_blur \
-												--multiprocessing-distributed \
 												/vast/mr6744/SAYCAM_blur/ "
