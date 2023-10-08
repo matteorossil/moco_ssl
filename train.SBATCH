@@ -30,4 +30,5 @@ srun \
 												--dist-url "env://" \
 												--mlp --moco-t 0.2 --aug-plus --cos \
 												--ckpt_path /vast/mr6744/pretrained_models_moco/200K_blur \
+												--multiprocessing-distributed \
 												/vast/mr6744/SAYCAM_blur/ "
