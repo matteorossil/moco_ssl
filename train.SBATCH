@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=2
+#SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=12
 #SBATCH --time=0:10:00
 #SBATCH --mem=60GB
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:1
 #SBATCH --job-name=MOCO_200K_blur
 #SBATCH --output=/scratch/mr6744/pytorch/outputs_slurm/%j.out
 
@@ -25,7 +25,7 @@ srun \
 	/bin/bash -c "source /ext3/env.sh; python -u main_moco.py \
 												-a resnet50 \
 												--lr 0.03 \
-												--batch_size 256 \
+												--batch-size 256 \
 												--epochs 200 \
 												--dist-url "env://" \
 												--mlp --moco-t 0.2 --aug-plus --cos \
