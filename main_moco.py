@@ -238,8 +238,7 @@ def main_worker(gpu, ngpus_per_node, args):
 
     if args.distributed:
         if args.dist_url == "env://" and args.rank == -1:
-            #args.rank = int(os.environ["RANK"])
-            args.rank = int(os.environ['SLURM_PROCID'])
+            args.rank = int(os.environ["RANK"])
         if args.multiprocessing_distributed:
             # For multiprocessing distributed training, rank needs to be the
             # global rank among all the processes

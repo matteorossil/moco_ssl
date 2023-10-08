@@ -11,10 +11,10 @@
 
 module purge
 
-singularity exec --nv \
+srun singularity exec --nv \
 	--overlay /scratch/mr6744/pytorch/overlay-25GB-500K.ext3:ro \
 	/scratch/work/public/singularity/cuda11.6.124-cudnn8.4.0.27-devel-ubuntu20.04.4.sif \
-	/bin/bash -c "source /ext3/env.sh; python -u main_moco2.py \
+	/bin/bash -c "source /ext3/env.sh; python -u main_moco.py \
 												-a resnet50 \
 												--lr 0.03 \
 												--batch-size 256 \
