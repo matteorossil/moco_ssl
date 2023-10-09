@@ -19,6 +19,7 @@ singularity exec --nv \
 												--lr 0.015 \
 												--batch-size 128 \
 												--epochs 1000 \
+												--mlp --moco-t 0.2 --aug-plus --cos \
 												--dist-url 'tcp://localhost:10007' --multiprocessing-distributed --world-size 1 --rank 0 \
 												--ckpt_path /vast/mr6744/pretrained_models_moco/200K_blur \
 												/vast/mr6744/SAYCAM_blur/ "
