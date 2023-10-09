@@ -248,6 +248,9 @@ def main_worker(gpu, ngpus_per_node, args):
             # For multiprocessing distributed training, rank needs to be the
             # global rank among all the processes
             args.rank = args.rank * ngpus_per_node + gpu
+
+        print("rank", args.rank)
+
         dist.init_process_group(
             backend=args.dist_backend,
             init_method=args.dist_url,

@@ -9,6 +9,12 @@
 #SBATCH --job-name=MOCO2_200K_blur
 #SBATCH --output=/scratch/mr6744/pytorch/outputs_slurm/%j.out
 
+###export MASTER_PORT=$(shuf -i 10000-65500 -n 1)
+###echo "MASTER_PORT="$MASTER_PORT
+
+###export MASTER_ADDR="$(hostname -s).hpc.nyu.edu"
+###echo "MASTER_ADDR="$MASTER_ADDR
+
 module purge
 
 singularity exec --nv \
@@ -20,6 +26,6 @@ singularity exec --nv \
 												--batch-size 256 \
 												--epochs 200 \
 												--mlp --moco-t 0.2 --aug-plus --cos \
-												--dist-url 'tcp://localhost:10001' --multiprocessing-distributed --world-size 1 --rank 0 \
+												--dist-url 'tcp://localhost:10005' --multiprocessing-distributed --world-size 1 --rank 0 \
 												--ckpt_path /vast/mr6744/pretrained_models_moco/200K_blur \
 												/vast/mr6744/SAYCAM_blur/ "
