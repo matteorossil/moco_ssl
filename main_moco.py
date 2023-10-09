@@ -29,6 +29,7 @@ import torch.utils.data.distributed
 import torchvision.datasets as datasets
 import torchvision.models as models
 import torchvision.transforms as transforms
+from torch.utils.tensorboard import SummaryWriter
 
 
 model_names = sorted(
@@ -307,6 +308,8 @@ def main_worker(gpu, ngpus_per_node, args):
         weight_decay=args.weight_decay,
     )
 
+    summary_writer = SummaryWriter(log_dir=args.ckpt_path) if args.rank == 0 else None
+
     # optionally resume from a checkpoint
     if args.resume:
         if os.path.isfile(args.resume):
@@ -385,7 +388,7 @@ def main_worker(gpu, ngpus_per_node, args):
         adjust_learning_rate(optimizer, epoch, args)
 
         # train for one epoch
-        train(train_loader, model, criterion, optimizer, epoch, args)
+        train(train_loader, model, criterion, optimizer, summary_writer, epoch, args)
 
         if not args.multiprocessing_distributed or (
             args.multiprocessing_distributed and args.rank % ngpus_per_node == 0
@@ -400,8 +403,11 @@ def main_worker(gpu, ngpus_per_node, args):
                 is_best=False,
                 filename=os.path.join(args.ckpt_path, "checkpoint_{:04d}.pth.tar".format(epoch)),
             )
+    
+    if args.rank == 0:
+        summary_writer.close()
 
-def train(train_loader, model, criterion, optimizer, epoch, args):
+def train(train_loader, model, criterion, optimizer, summary_writer, epoch, args):
     batch_time = AverageMeter("Time", ":6.3f")
     data_time = AverageMeter("Data", ":6.3f")
     losses = AverageMeter("Loss", ":.4e")
@@ -417,6 +423,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
     model.train()
 
     end = time.time()
+    iters_per_epoch = len(train_loader)
     for i, (images, _) in enumerate(train_loader):
         # measure data loading time
         data_time.update(time.time() - end)
@@ -428,13 +435,15 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
         # compute output
         output, target = model(im_q=images[0], im_k=images[1])
         loss = criterion(output, target)
-        print(loss.item())
+        #print(loss.item())
 
         # acc1/acc5 are (K+1)-way contrast classifier accuracy
         # measure accuracy and record loss
         acc1, acc5 = accuracy(output, target, topk=(1, 5))
-        print(acc1)
+        #print(acc1)
         losses.update(loss.item(), images[0].size(0))
+        if args.rank == 0:
+            summary_writer.add_scalar("loss", loss.item(), epoch * iters_per_epoch + i)
         top1.update(acc1[0], images[0].size(0))
         top5.update(acc5[0], images[0].size(0))
 
