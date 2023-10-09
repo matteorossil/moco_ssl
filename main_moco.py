@@ -228,7 +228,7 @@ def main():
 def main_worker(gpu, ngpus_per_node, args):
     args.gpu = gpu
 
-    print(gpu)
+    print("gpu", args.gpu)
 
     # suppress printing if not master
     if args.multiprocessing_distributed and args.gpu != 0:
@@ -248,8 +248,6 @@ def main_worker(gpu, ngpus_per_node, args):
             # For multiprocessing distributed training, rank needs to be the
             # global rank among all the processes
             args.rank = args.rank * ngpus_per_node + gpu
-
-        print("rank", args.rank)
 
         dist.init_process_group(
             backend=args.dist_backend,
@@ -379,6 +377,7 @@ def main_worker(gpu, ngpus_per_node, args):
         sampler=train_sampler,
         drop_last=True,
     )
+    print(train_dataset)
 
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
@@ -429,10 +428,12 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
         # compute output
         output, target = model(im_q=images[0], im_k=images[1])
         loss = criterion(output, target)
+        print(loss.item())
 
         # acc1/acc5 are (K+1)-way contrast classifier accuracy
         # measure accuracy and record loss
         acc1, acc5 = accuracy(output, target, topk=(1, 5))
+        print(acc1)
         losses.update(loss.item(), images[0].size(0))
         top1.update(acc1[0], images[0].size(0))
         top5.update(acc5[0], images[0].size(0))
@@ -522,7 +523,7 @@ def accuracy(output, target, topk=(1,)):
 
         res = []
         for k in topk:
-            correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
+            correct_k = correct[:k].contiguous().view(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
 

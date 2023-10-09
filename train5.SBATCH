@@ -6,7 +6,7 @@
 #SBATCH --time=48:00:00
 #SBATCH --mem=60GB
 #SBATCH --gres=gpu:2
-#SBATCH --job-name=M_1M_blur
+#SBATCH --job-name=M_200K_full_blur
 #SBATCH --output=/scratch/mr6744/pytorch/outputs_slurm/%j.out
 
 module purge
@@ -19,6 +19,6 @@ singularity exec --nv \
 												--lr 0.015 \
 												--batch-size 128 \
 												--epochs 1000 \
-												--dist-url 'tcp://localhost:10005' --multiprocessing-distributed --world-size 1 --rank 0 \
-												--ckpt_path /vast/mr6744/pretrained_models_moco/1M_blur \
-												/vast/mr6744/SAYCAM/ "
+												--dist-url 'tcp://localhost:10009' --multiprocessing-distributed --world-size 1 --rank 0 \
+												--ckpt_path /vast/mr6744/pretrained_models_moco/200K_blur_full \
+												/vast/mr6744/SAYCAM_blur_full/ "
