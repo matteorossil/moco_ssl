@@ -22,4 +22,4 @@ singularity exec --nv \
 												--mlp --moco-t 0.2 --aug-plus --cos \
 												--dist-url 'tcp://localhost:10011' --multiprocessing-distributed --world-size 1 --rank 0 \
 												--ckpt_path /vast/mr6744/pretrained_models_moco/1M_deblur_vit \
-												/vast/mr6744/SAYCAM/ "
+												/vast/mr6744/SAYCAM_1M_deblur/ "
