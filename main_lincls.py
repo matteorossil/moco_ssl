@@ -12,6 +12,7 @@ import random
 import shutil
 import time
 import warnings
+import json
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -25,6 +26,7 @@ import torch.utils.data.distributed
 import torchvision.datasets as datasets
 import torchvision.models as models
 import torchvision.transforms as transforms
+from torch.utils.tensorboard import SummaryWriter
 
 
 model_names = sorted(
@@ -154,6 +156,10 @@ parser.add_argument(
     "--pretrained", default="", type=str, help="path to moco pretrained checkpoint"
 )
 
+parser.add_argument(
+    "--ckpt_path", default="", type=str, help="path to moco pretrained checkpoint"
+)
+
 best_acc1 = 0
 
 
@@ -180,11 +186,14 @@ def main():
 
     if args.dist_url == "env://" and args.world_size == -1:
         args.world_size = int(os.environ["WORLD_SIZE"])
+        args.world_size
 
     args.distributed = args.world_size > 1 or args.multiprocessing_distributed
 
     ngpus_per_node = torch.cuda.device_count()
+
     if args.multiprocessing_distributed:
+
         # Since we have ngpus_per_node processes per node, the total world_size
         # needs to be adjusted accordingly
         args.world_size = ngpus_per_node * args.world_size
@@ -199,6 +208,8 @@ def main():
 def main_worker(gpu, ngpus_per_node, args):
     global best_acc1
     args.gpu = gpu
+
+    log_writer = SummaryWriter(log_dir=args.ckpt_path)
 
     # suppress printing if not master
     if args.multiprocessing_distributed and args.gpu != 0:
@@ -349,6 +360,8 @@ def main_worker(gpu, ngpus_per_node, args):
         ),
     )
 
+    print(train_dataset)
+
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
     else:
@@ -394,7 +407,7 @@ def main_worker(gpu, ngpus_per_node, args):
         train(train_loader, model, criterion, optimizer, epoch, args)
 
         # evaluate on validation set
-        acc1 = validate(val_loader, model, criterion, args)
+        acc1 = validate(val_loader, model, criterion, args, epoch, log_writer)
 
         # remember best acc@1 and save checkpoint
         is_best = acc1 > best_acc1
@@ -412,8 +425,9 @@ def main_worker(gpu, ngpus_per_node, args):
                     "optimizer": optimizer.state_dict(),
                 },
                 is_best,
+                os.path.join(args.ckpt_path, f"checkpoint_{epoch+1}.pth.tar"),
             )
-            if epoch == args.start_epoch:
+            if epoch == args.start_epoch and args.pretrained != "":
                 sanity_check(model.state_dict(), args.pretrained)
 
 
@@ -470,7 +484,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
             progress.display(i)
 
 
-def validate(val_loader, model, criterion, args):
+def validate(val_loader, model, criterion, args, epoch, log_writer):
     batch_time = AverageMeter("Time", ":6.3f")
     losses = AverageMeter("Loss", ":.4e")
     top1 = AverageMeter("Acc@1", ":6.2f")
@@ -510,6 +524,14 @@ def validate(val_loader, model, criterion, args):
         print(
             " * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}".format(top1=top1, top5=top5)
         )
+
+        log_stats = {**{'test_acc1': top1.avg.item()},
+                     **{'test_acc5': top5.avg.item()},
+                        'epoch': epoch+1}
+
+        log_writer.flush()
+        with open(os.path.join(args.ckpt_path, "log.txt"), mode="a", encoding="utf-8") as f:
+            f.write(json.dumps(log_stats) + "\n")
 
     return top1.avg
 
@@ -611,7 +633,7 @@ def accuracy(output, target, topk=(1,)):
 
         res = []
         for k in topk:
-            correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
+            correct_k = correct[:k].contiguous().view(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
 
