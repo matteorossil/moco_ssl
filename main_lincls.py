@@ -115,13 +115,6 @@ parser.add_argument(
     help="path to latest checkpoint (default: none)",
 )
 parser.add_argument(
-    "--d",
-    default="",
-    type=str,
-    metavar="",
-    help="path to imagenet",
-)
-parser.add_argument(
     "-e",
     "--evaluate",
     dest="evaluate",
@@ -349,9 +342,6 @@ def main_worker(gpu, ngpus_per_node, args):
     cudnn.benchmark = True
 
     # Data loading code
-    print("args.data:", args.data)
-    args.data = args.d
-    print("args.data:", args.data)
     traindir = os.path.join(args.data, "train")
     valdir = os.path.join(args.data, "val")
     normalize = transforms.Normalize(
