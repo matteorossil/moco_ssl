@@ -342,6 +342,7 @@ def main_worker(gpu, ngpus_per_node, args):
     cudnn.benchmark = True
 
     # Data loading code
+    print("args.data", args.data)
     traindir = os.path.join(args.data, "train")
     valdir = os.path.join(args.data, "val")
     normalize = transforms.Normalize(
