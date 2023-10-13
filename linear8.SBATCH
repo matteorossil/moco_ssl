@@ -19,4 +19,5 @@ singularity exec --nv \
 												--lr 30.0 \
 												--batch-size 256 \
 												--ckpt_path /vast/mr6744/linear_evaluation_moco/baseline \ 
+												--d /vast/mr6744/MiniImagenet/ \
 												/vast/mr6744/MiniImagenet/ "

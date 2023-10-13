@@ -19,5 +19,6 @@ singularity exec --nv \
 												--lr 30.0 \
 												--batch-size 256 \
 												--pretrained /vast/mr6744/pretrained_models_moco/1M_blur/checkpoint_0050.pth.tar \
-												--ckpt_path /vast/mr6744/linear_evaluation_moco/1M_blur \ 
+												--ckpt_path /vast/mr6744/linear_evaluation_moco/1M_blur \
+												--d /vast/mr6744/MiniImagenet/ \
 												/vast/mr6744/MiniImagenet/ "
