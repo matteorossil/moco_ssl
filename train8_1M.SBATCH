@@ -20,6 +20,7 @@ singularity exec --nv \
 												--batch-size 128 \
 												--epochs 1000 \
 												--mlp --moco-t 0.2 --aug-plus --cos \
+												--resume /vast/mr6744/pretrained_models_moco/1M_deblur_crop/checkpoint_0007.pth.tar \
 												--dist-url 'tcp://localhost:10006' --multiprocessing-distributed --world-size 1 --rank 0 \
 												--ckpt_path /vast/mr6744/pretrained_models_moco/1M_deblur_crop \
 												/vast/mr6744/SAYCAM_1M_deblur_crop/ "
